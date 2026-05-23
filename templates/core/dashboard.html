@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="tf-page-header">
+  <div>
+    <h1 class="tf-page-header__title">Good to see you, {{ user.first_name|default:user.username }} 👋</h1>
+    <p class="tf-page-header__subtitle">Here's what's on your plate today.</p>
+  </div>
+  <a href="{% url 'tasks:create' %}" class="btn tf-btn-primary">
+    <i class="bi bi-plus-lg me-1"></i> New Task
+  </a>
+</div>
+
+{# ── Stat cards ── #}
+<div class="row g-4 mb-4">
+  <div class="col-12 col-sm-6 col-xl-4">
+    <div class="tf-stat-card tf-stat-card--blue">
+      <div class="tf-stat-card__icon"><i class="bi bi-list-task"></i></div>
+      <div>
+        <p class="tf-stat-card__label">Total Tasks</p>
+        <p class="tf-stat-card__value">{{ total_tasks }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-xl-4">
+    <div class="tf-stat-card tf-stat-card--amber">
+      <div class="tf-stat-card__icon"><i class="bi bi-hourglass-split"></i></div>
+      <div>
+        <p class="tf-stat-card__label">Open</p>
+        <p class="tf-stat-card__value">{{ open_tasks }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-xl-4">
+    <div class="tf-stat-card tf-stat-card--green">
+      <div class="tf-stat-card__icon"><i class="bi bi-check2-all"></i></div>
+      <div>
+        <p class="tf-stat-card__label">Completed</p>
+        <p class="tf-stat-card__value">{{ done_tasks }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ── Recent tasks ── #}
+<div class="tf-card">
+  <div class="tf-card__header">
+    <h2 class="tf-card__title">Recent Tasks</h2>
+    <a href="{% url 'tasks:list' %}" class="btn btn-sm btn-outline-secondary">View all</a>
+  </div>
+  <div class="tf-card__body p-0">
+    {% if recent_tasks %}
+      <ul class="tf-task-list">
+        {% for task in recent_tasks %}
+          <li class="tf-task-list__item">
+            <span class="tf-status-dot tf-status-dot--{{ task.status }}"></span>
+            <a href="{% url 'tasks:detail' task.pk %}" class="tf-task-list__title">
+              {{ task.title }}
+            </a>
+            <span class="tf-badge tf-badge--{{ task.priority }}">{{ task.get_priority_display }}</span>
+            {% if task.due_date %}
+              <span class="tf-task-list__due {% if task.is_overdue %}tf-task-list__due--overdue{% endif %}">
+                <i class="bi bi-calendar3"></i> {{ task.due_date|date:"M j" }}
+              </span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="tf-empty-state">
+        <i class="bi bi-inbox tf-empty-state__icon"></i>
+        <p>No tasks yet. <a href="{% url 'tasks:create' %}">Create your first one.</a></p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

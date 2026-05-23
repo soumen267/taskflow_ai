@@ -1,0 +1,94 @@
+<header class="tf-topnav" role="banner">
+
+  {# Left: hamburger toggle (mobile) + page title #}
+  <div class="tf-topnav__left">
+    <button
+      class="tf-topnav__toggle d-xl-none"
+      id="sidebarToggle"
+      aria-controls="tf-sidebar"
+      aria-expanded="false"
+      aria-label="Toggle sidebar"
+    >
+      <i class="bi bi-list"></i>
+    </button>
+
+    <div class="tf-topnav__breadcrumb">
+      {% block topnav_title %}
+        <span class="tf-topnav__page-title">
+          {% block page_title %}Dashboard{% endblock %}
+        </span>
+      {% endblock %}
+    </div>
+  </div>
+
+  {# Right: actions + user menu #}
+  <div class="tf-topnav__right">
+
+    {# Quick-add task #}
+    <a
+      href="{% url 'tasks:create' %}"
+      class="btn tf-btn-primary btn-sm me-2"
+      aria-label="New task"
+    >
+      <i class="bi bi-plus-lg me-1"></i>
+      <span class="d-none d-sm-inline">New Task</span>
+    </a>
+
+    {# Theme toggle #}
+    <button
+      class="tf-topnav__icon-btn me-1"
+      id="themeToggle"
+      aria-label="Toggle colour theme"
+      title="Toggle theme"
+    >
+      <i class="bi bi-sun-fill" id="themeIcon"></i>
+    </button>
+
+    {# User avatar dropdown #}
+    <div class="dropdown">
+      <button
+        class="tf-topnav__avatar-btn dropdown-toggle"
+        type="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+        aria-label="User menu"
+      >
+        {% if user.avatar %}
+          <img src="{{ user.avatar.url }}" alt="{{ user.display_name }}" class="tf-avatar" />
+        {% else %}
+          <span class="tf-avatar tf-avatar--initials">
+            {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+          </span>
+        {% endif %}
+      </button>
+
+      <ul class="dropdown-menu dropdown-menu-end tf-dropdown">
+        <li class="tf-dropdown__header">
+          <p class="fw-semibold mb-0">{{ user.display_name }}</p>
+          <small class="text-muted">{{ user.email }}</small>
+        </li>
+        <li><hr class="dropdown-divider" /></li>
+        <li>
+          <a class="dropdown-item" href="{% url 'accounts:profile' %}">
+            <i class="bi bi-person me-2"></i>Profile
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="{% url 'admin:index' %}">
+            <i class="bi bi-sliders me-2"></i>Admin
+          </a>
+        </li>
+        <li><hr class="dropdown-divider" /></li>
+        <li>
+          <form method="post" action="{% url 'accounts:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="dropdown-item text-danger">
+              <i class="bi bi-box-arrow-left me-2"></i>Log out
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
+
+  </div>{# /.tf-topnav__right #}
+</header>

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Sign in{% endblock %}
+
+{% block auth_content %}
+<div class="tf-auth-page">
+  <div class="tf-auth-card">
+
+    <div class="tf-auth-card__brand">
+      <i class="bi bi-lightning-charge-fill"></i>
+      <span>TaskFlow <em>AI</em></span>
+    </div>
+
+    <h1 class="tf-auth-card__title">Welcome back</h1>
+    <p class="tf-auth-card__subtitle">Sign in to continue</p>
+
+    {% include "partials/_messages.html" %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {{ form|crispy }}
+      <button type="submit" class="btn tf-btn-primary w-100 mt-2">
+        Sign in <i class="bi bi-arrow-right ms-1"></i>
+      </button>
+    </form>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if form.instance.pk %}Edit User{% else %}New User{% endif %}{% endblock %}
+{% block page_title %}{% if form.instance.pk %}Edit User{% else %}New User{% endif %}{% endblock %}
+
+{% block content %}
+<div class="tf-card" style="max-width:640px;">
+  <div class="tf-card__body">
+    <form method="post" novalidate enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <div class="d-flex gap-2 mt-3">
+        <button type="submit" class="btn tf-btn-primary">
+          {% if form.instance.pk %}Save changes{% else %}Create users{% endif %}
+        </button>
+        <a href="{% url 'users:list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

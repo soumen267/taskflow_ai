@@ -1,0 +1,928 @@
+/* ══════════════════════════════════════════════
+   TaskFlow AI — app.css
+   Design system: clean industrial utility + subtle depth
+   Font: DM Sans (body) / DM Mono (code/labels)
+   ══════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────
+   1. Design tokens (CSS custom properties)
+   ───────────────────────────────────────────── */
+:root {
+  /* Sidebar */
+  --tf-sidebar-width:        240px;
+  --tf-sidebar-bg:           #0f1117;
+  --tf-sidebar-border:       #1e2130;
+  --tf-sidebar-text:         #8b92a5;
+  --tf-sidebar-text-active:  #ffffff;
+  --tf-sidebar-hover-bg:     rgba(255,255,255,0.06);
+  --tf-sidebar-active-bg:    rgba(99,102,241,0.18);
+  --tf-sidebar-active-accent:#6366f1;
+
+  /* Topnav */
+  --tf-topnav-h:             60px;
+  --tf-topnav-bg:            #ffffff;
+  --tf-topnav-border:        #e8eaed;
+
+  /* Content */
+  --tf-content-bg:           #f4f6fb;
+  --tf-content-pad:          2rem;
+
+  /* Brand palette */
+  --tf-indigo:               #6366f1;
+  --tf-indigo-dark:          #4f46e5;
+  --tf-indigo-light:         #e0e7ff;
+  --tf-green:                #22c55e;
+  --tf-amber:                #f59e0b;
+  --tf-red:                  #ef4444;
+  --tf-blue:                 #3b82f6;
+
+  /* Card */
+  --tf-card-bg:              #ffffff;
+  --tf-card-border:          #e8eaed;
+  --tf-card-radius:          12px;
+  --tf-card-shadow:          0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+
+  /* Typography */
+  --tf-font-body:            'DM Sans', system-ui, sans-serif;
+  --tf-font-mono:            'DM Mono', 'Fira Mono', monospace;
+}
+
+/* Dark theme overrides */
+[data-bs-theme="dark"] {
+  --tf-topnav-bg:            #161b27;
+  --tf-topnav-border:        #252d3d;
+  --tf-content-bg:           #0d1117;
+  --tf-card-bg:              #161b27;
+  --tf-card-border:          #252d3d;
+  --tf-card-shadow:          0 1px 4px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+}
+
+/* ─────────────────────────────────────────────
+   2. Global reset / base
+   ───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: var(--tf-font-body);
+  background: var(--tf-content-bg);
+  font-size: 0.9375rem;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─────────────────────────────────────────────
+   3. Layout shell
+   ───────────────────────────────────────────── */
+.tf-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+.tf-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-left: var(--tf-sidebar-width);
+  transition: margin-left 0.25s ease;
+}
+
+/* ─────────────────────────────────────────────
+   4. Sidebar
+   ───────────────────────────────────────────── */
+.tf-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--tf-sidebar-width);
+  height: 100vh;
+  background: var(--tf-sidebar-bg);
+  border-right: 1px solid var(--tf-sidebar-border);
+  display: flex;
+  flex-direction: column;
+  z-index: 1040;
+  transition: transform 0.25s ease;
+  overflow-y: auto;
+}
+
+/* Brand */
+.tf-sidebar__brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.25rem 0.75rem;
+  border-bottom: 1px solid var(--tf-sidebar-border);
+  flex-shrink: 0;
+}
+
+.tf-sidebar__logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.tf-sidebar__logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--tf-indigo) 0%, #818cf8 100%);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.tf-sidebar__logo-text em { color: #818cf8; font-style: normal; }
+
+.tf-sidebar__close {
+  color: var(--tf-sidebar-text);
+  font-size: 1.25rem;
+  padding: 0;
+  line-height: 1;
+}
+
+/* Nav body */
+.tf-sidebar__body {
+  flex: 1;
+  padding: 1rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Nav list */
+.tf-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tf-nav + .tf-nav { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--tf-sidebar-border); }
+
+.tf-nav__label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #3d4460;
+  padding: 0.5rem 0.5rem 0.25rem;
+  font-family: var(--tf-font-mono);
+}
+
+.tf-nav__link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  color: var(--tf-sidebar-text);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.tf-nav__link i { font-size: 1rem; flex-shrink: 0; }
+
+.tf-nav__link:hover {
+  background: var(--tf-sidebar-hover-bg);
+  color: #fff;
+}
+
+.tf-nav__link.active {
+  background: var(--tf-sidebar-active-bg);
+  color: var(--tf-sidebar-text-active);
+  border-left: 3px solid var(--tf-sidebar-active-accent);
+  padding-left: calc(0.75rem - 3px);
+}
+
+.tf-nav__badge {
+  margin-left: auto;
+  background: var(--tf-indigo);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 20px;
+  font-family: var(--tf-font-mono);
+}
+
+/* Sidebar footer */
+.tf-sidebar__footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--tf-sidebar-border);
+  flex-shrink: 0;
+}
+
+.tf-sidebar__version {
+  font-family: var(--tf-font-mono);
+  font-size: 0.6875rem;
+  color: #3d4460;
+}
+
+/* Mobile overlay */
+.tf-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1039;
+}
+
+/* ─────────────────────────────────────────────
+   5. Top navigation bar
+   ───────────────────────────────────────────── */
+.tf-topnav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--tf-topnav-h);
+  background: var(--tf-topnav-bg);
+  border-bottom: 1px solid var(--tf-topnav-border);
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.tf-topnav__left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.tf-topnav__toggle {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: inherit;
+  padding: 0.25rem;
+  cursor: pointer;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.tf-topnav__page-title {
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tf-topnav__right {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.tf-topnav__icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: inherit;
+  transition: background 0.15s;
+}
+
+.tf-topnav__icon-btn:hover { background: var(--tf-card-border); }
+
+.tf-topnav__avatar-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.tf-topnav__avatar-btn::after { display: none; } /* remove BS caret */
+
+.tf-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.tf-avatar--initials {
+  background: linear-gradient(135deg, var(--tf-indigo) 0%, #818cf8 100%);
+  color: #fff;
+  font-family: var(--tf-font-mono);
+}
+
+/* ─────────────────────────────────────────────
+   6. Content area
+   ───────────────────────────────────────────── */
+.tf-content {
+  flex: 1;
+  padding: var(--tf-content-pad);
+}
+
+.tf-footer {
+  padding: 1rem var(--tf-content-pad);
+  font-size: 0.8125rem;
+  color: #8b92a5;
+  border-top: 1px solid var(--tf-card-border);
+}
+
+/* ─────────────────────────────────────────────
+   7. Page header
+   ───────────────────────────────────────────── */
+.tf-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.tf-page-header__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.tf-page-header__subtitle {
+  font-size: 0.875rem;
+  color: #8b92a5;
+  margin: 0.15rem 0 0;
+}
+
+/* ─────────────────────────────────────────────
+   8. Cards
+   ───────────────────────────────────────────── */
+.tf-card {
+  background: var(--tf-card-bg);
+  border: 1px solid var(--tf-card-border);
+  border-radius: var(--tf-card-radius);
+  box-shadow: var(--tf-card-shadow);
+  overflow: hidden;
+}
+
+.tf-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--tf-card-border);
+}
+
+.tf-card__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.tf-card__body { padding: 1.25rem; }
+
+/* ─────────────────────────────────────────────
+   9. Stat cards
+   ───────────────────────────────────────────── */
+.tf-stat-card {
+  background: var(--tf-card-bg);
+  border: 1px solid var(--tf-card-border);
+  border-radius: var(--tf-card-radius);
+  box-shadow: var(--tf-card-shadow);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-left: 4px solid transparent;
+}
+
+.tf-stat-card--blue  { border-left-color: var(--tf-blue); }
+.tf-stat-card--amber { border-left-color: var(--tf-amber); }
+.tf-stat-card--green { border-left-color: var(--tf-green); }
+
+.tf-stat-card__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  background: var(--tf-indigo-light);
+  color: var(--tf-indigo);
+}
+
+.tf-stat-card--amber .tf-stat-card__icon { background: #fef3c7; color: var(--tf-amber); }
+.tf-stat-card--green .tf-stat-card__icon { background: #dcfce7; color: var(--tf-green); }
+
+.tf-stat-card__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8b92a5;
+  margin: 0;
+  font-family: var(--tf-font-mono);
+}
+
+.tf-stat-card__value {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  margin: 0;
+  line-height: 1;
+}
+
+/* ─────────────────────────────────────────────
+   10. Task list
+   ───────────────────────────────────────────── */
+.tf-task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tf-task-list__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1.25rem;
+  border-bottom: 1px solid var(--tf-card-border);
+  transition: background 0.12s;
+  flex-wrap: wrap;
+}
+
+.tf-task-list__item:last-child { border-bottom: none; }
+.tf-task-list__item:hover { background: var(--tf-content-bg); }
+
+.tf-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tf-status-dot--open        { background: var(--tf-amber); }
+.tf-status-dot--in_progress { background: var(--tf-blue); }
+.tf-status-dot--done        { background: var(--tf-green); }
+.tf-status-dot--archived    { background: #8b92a5; }
+
+.tf-task-list__title {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tf-task-list__title:hover { color: var(--tf-indigo); }
+
+.tf-task-list__due {
+  font-size: 0.75rem;
+  color: #8b92a5;
+  font-family: var(--tf-font-mono);
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+
+.tf-task-list__due--overdue { color: var(--tf-red); }
+
+/* ─────────────────────────────────────────────
+   11. Badges
+   ───────────────────────────────────────────── */
+.tf-badge {
+  font-family: var(--tf-font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Priority */
+.tf-badge--low      { background: #f0fdf4; color: #15803d; }
+.tf-badge--medium   { background: #fffbeb; color: #b45309; }
+.tf-badge--high     { background: #fff7ed; color: #c2410c; }
+.tf-badge--critical { background: #fef2f2; color: #991b1b; }
+.tf-badge--danger   { background: #fef2f2; color: #991b1b; }
+
+/* Status */
+.tf-badge--status-open        { background: #fffbeb; color: #b45309; }
+.tf-badge--status-in_progress { background: #eff6ff; color: #1d4ed8; }
+.tf-badge--status-done        { background: #f0fdf4; color: #15803d; }
+.tf-badge--status-archived    { background: #f8fafc; color: #64748b; }
+
+/* ─────────────────────────────────────────────
+   12. Table
+   ───────────────────────────────────────────── */
+.tf-table {
+  font-size: 0.875rem;
+}
+
+.tf-table thead th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8b92a5;
+  font-family: var(--tf-font-mono);
+  border-bottom-color: var(--tf-card-border);
+  padding: 0.85rem 1rem;
+}
+
+.tf-table tbody td {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+  border-bottom-color: var(--tf-card-border);
+}
+
+/* ─────────────────────────────────────────────
+   13. Filters row
+   ───────────────────────────────────────────── */
+.tf-filters {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.tf-filter-btn {
+  padding: 0.3rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: #8b92a5;
+  background: var(--tf-card-bg);
+  border: 1px solid var(--tf-card-border);
+  transition: all 0.15s;
+}
+
+.tf-filter-btn:hover,
+.tf-filter-btn.active {
+  background: var(--tf-indigo);
+  border-color: var(--tf-indigo);
+  color: #fff;
+}
+
+/* ─────────────────────────────────────────────
+   14. Buttons
+   ───────────────────────────────────────────── */
+.tf-btn-primary {
+  background: var(--tf-indigo);
+  border-color: var(--tf-indigo);
+  color: #fff;
+  font-weight: 600;
+}
+
+.tf-btn-primary:hover {
+  background: var(--tf-indigo-dark);
+  border-color: var(--tf-indigo-dark);
+  color: #fff;
+}
+
+/* ─────────────────────────────────────────────
+   15. Dropdown
+   ───────────────────────────────────────────── */
+.tf-dropdown {
+  border: 1px solid var(--tf-card-border);
+  border-radius: var(--tf-card-radius);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  padding: 0.5rem;
+  min-width: 200px;
+}
+
+.tf-dropdown__header {
+  padding: 0.5rem 0.75rem 0.75rem;
+}
+
+.tf-dropdown .dropdown-item {
+  border-radius: 6px;
+  font-size: 0.875rem;
+  padding: 0.45rem 0.75rem;
+}
+
+/* ─────────────────────────────────────────────
+   16. Auth pages (unauthenticated)
+   ───────────────────────────────────────────── */
+.tf-auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tf-content-bg);
+  padding: 2rem 1rem;
+}
+
+.tf-auth-card {
+  background: var(--tf-card-bg);
+  border: 1px solid var(--tf-card-border);
+  border-radius: 16px;
+  box-shadow: var(--tf-card-shadow);
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 420px;
+}
+
+.tf-auth-card__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--tf-indigo);
+  margin-bottom: 1.5rem;
+}
+
+.tf-auth-card__brand em { color: #818cf8; font-style: normal; }
+
+.tf-auth-card__title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.25rem;
+}
+
+.tf-auth-card__subtitle {
+  color: #8b92a5;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ─────────────────────────────────────────────
+   17. Messages / alerts
+   ───────────────────────────────────────────── */
+.tf-messages { margin-bottom: 1.25rem; }
+
+.tf-alert {
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* ─────────────────────────────────────────────
+   18. Empty state
+   ───────────────────────────────────────────── */
+.tf-empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #8b92a5;
+}
+
+.tf-empty-state__icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 0.75rem;
+  opacity: 0.5;
+}
+
+/* ═════════════════════════════════════════════════════════════════════════
+   20. Complete DataTables Overrides — Seamless TaskFlow AI System
+   ═════════════════════════════════════════════════════════════════════════ */
+
+/* Remove standard borders and forced sizing layouts */
+.datatable-wrapper {
+    width: 100%;
+}
+.datatable-container {
+    border: none !important;
+    margin: 0 !important;
+}
+
+/* ─────────────────────────────────────────────
+   A. Top Navigation Structure (Rows per page & Search)
+   ───────────────────────────────────────────── */
+.datatable-top {
+    display: flex !important;
+    justify-content: space-between !important; /* Forces dropdown left, search right */
+    align-items: center !important;
+    padding: 1rem 1.5rem !important; /* Cleaner padding spacing inside task card */
+    background: var(--tf-card-bg);
+    border-bottom: 1px solid var(--tf-card-border);
+    gap: 1rem;
+}
+
+/* Align and clean the left entries selector */
+.datatable-dropdown {
+    font-size: 0.875rem;
+    color: #8b92a5;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Fixes the search engine container layout clash */
+.datatable-search {
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    float: none !important;      /* 💥 THE FIX: Wipes out the library float positioning grid flaw! */
+    margin-left: auto !important; /* 💥 THE FIX: Dynamically pushes the container box hard-right */
+}
+
+.datatable-input {
+    width: 240px !important;
+    padding: 0.45rem 0.85rem !important;
+    font-size: 0.875rem !important;
+    font-family: var(--tf-font-body) !important;
+    background-color: var(--tf-card-bg) !important;
+    border: 1px solid var(--tf-card-border) !important;
+    border-radius: 8px !important;
+    color: inherit !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.datatable-input::placeholder {
+    color: #8b92a5;
+    opacity: 0.7;
+}
+
+.datatable-input:focus {
+    border-color: var(--tf-indigo) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+    outline: none;
+}
+
+/* ─────────────────────────────────────────────
+   B. Header Formatting & Restoring Native Icons
+   ───────────────────────────────────────────── */
+.tf-table thead th {
+    background-color: var(--tf-content-bg) !important;
+    padding: 0.85rem 1.25rem !important;
+    vertical-align: middle;
+}
+
+.datatable-sorter {
+    display: block !important;
+    position: relative !important;
+    color: #8b92a5 !important;
+    font-family: var(--tf-font-mono) !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    text-decoration: none !important;
+    padding-right: 20px !important; /* Leaves room so text doesn't hit the triangles */
+}
+
+/* 🔓 REACTIVATE: Let the native library triangles show up again */
+.datatable-sorter::before, 
+.datatable-sorter::after {
+    display: block !important; /* Shows them */
+    content: "" !important;
+    height: 0 !important;
+    width: 0 !important;
+    position: absolute !important;
+    right: 4px !important;
+    border-left: 4px solid transparent !important;
+    border-right: 4px solid transparent !important;
+    opacity: 0.3;
+}
+
+/* Down triangle */
+.datatable-sorter::before {
+    bottom: 2px !important;
+    border-bottom: 4px solid #8b92a5 !important; /* Pulls from your design system text color */
+}
+
+/* Up triangle */
+.datatable-sorter::after {
+    top: 2px !important;
+    border-top: 4px solid #8b92a5 !important;
+}
+
+/* Light up the active sorting direction with your brand Indigo color */
+.asc .datatable-sorter::after {
+    opacity: 1 !important;
+    border-top-color: var(--tf-indigo) !important;
+}
+
+.desc .datatable-sorter::before {
+    opacity: 1 !important;
+    border-bottom-color: var(--tf-indigo) !important;
+}
+
+/* ─────────────────────────────────────────────
+   C. Bottom Navigation Structure (Info text & Pagination links)
+   ───────────────────────────────────────────── */
+.datatable-bottom {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 1.25rem 1.5rem !important;
+    background: var(--tf-card-bg);
+    border-top: 1px solid var(--tf-card-border);
+    gap: 1rem;
+}
+
+.datatable-info {
+    font-size: 0.8125rem !important;
+    color: #8b92a5 !important;
+    font-family: var(--tf-font-mono) !important;
+}
+
+/* Pagination container list styling overrides */
+.datatable-pagination ul {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    gap: 0.25rem !important;
+    list-style: none !important;
+}
+
+.datatable-pagination li {
+    float: none !important; /* Wipes out old CSS positioning grid flaws */
+    margin: 0 !important;
+}
+
+.datatable-pagination a {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 0.5rem !important;
+    font-size: 0.8125rem !important;
+    font-family: var(--tf-font-mono) !important;
+    color: #8b92a5 !important;
+    background-color: var(--tf-card-bg) !important;
+    border: 1px solid var(--tf-card-border) !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+
+.datatable-pagination a:hover {
+    background-color: var(--tf-content-bg) !important;
+    border-color: var(--tf-indigo) !important;
+    color: var(--tf-indigo) !important;
+}
+
+.datatable-pagination .active a {
+    background-color: var(--tf-indigo) !important;
+    border-color: var(--tf-indigo) !important;
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+.datatable-pagination .disabled a,
+.datatable-pagination .disabled a:hover {
+    opacity: 0.35 !important;
+    cursor: not-allowed !important;
+    background-color: var(--tf-card-bg) !important;
+    border-color: var(--tf-card-border) !important;
+    color: #8b92a5 !important;
+}
+
+
+/* ─────────────────────────────────────────────
+   19. Responsive / mobile
+   ───────────────────────────────────────────── */
+@media (max-width: 1199.98px) {
+  .tf-sidebar {
+    transform: translateX(-100%);
+  }
+
+  .tf-sidebar.is-open {
+    transform: translateX(0);
+  }
+
+  .tf-sidebar-overlay.is-open {
+    display: block;
+  }
+
+  .tf-main {
+    margin-left: 0;
+  }
+
+  .tf-content {
+    padding: 1.25rem;
+  }
+}

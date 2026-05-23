@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="{% block meta_description %}TaskFlow AI — Smart task management{% endblock %}" />
+  <title>{% block title %}TaskFlow AI{% endblock %} | {{ SITE_NAME }}</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous">
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    rel="stylesheet"
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+  
+  <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/app.css' %}" />
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+
+  {% if user.is_authenticated %}
+    {# ─── Authenticated layout: sidebar + topnav ─── #}
+    <div class="tf-wrapper">
+
+      {% include "partials/_sidebar.html" %}
+
+      <div class="tf-main">
+
+        {% include "partials/_topnav.html" %}
+
+        <main class="tf-content">
+          {% include "partials/_messages.html" %}
+          {% block content %}{% endblock %}
+        </main>
+
+        {% include "partials/_footer.html" %}
+
+      </div>{# /.tf-main #}
+    </div>{# /.tf-wrapper #}
+
+  {% else %}
+    {# ─── Unauthenticated layout: full-page ─── #}
+    {% block auth_content %}{% endblock %}
+  {% endif %}
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    crossorigin="anonymous"></script>
+  <script src="{% static 'js/app.js' %}"></script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const tables = document.querySelectorAll(".datatable-init");
+        
+        tables.forEach(table => {
+            new simpleDatatables.DataTable(table, {
+                searchable: true,
+                sortable: true,
+                perPage: 5,
+                labels: {
+                    placeholder: "Search data records...",
+                    perPage: "rows per page",
+                    noRows: "No matching records found",
+                    info: "Showing {start} to {end} of {rows} entries",
+                }
+            });
+        });
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    {% if messages %}
+      <script id="django-messages-data" type="application/json">
+        [
+          {% for message in messages %}
+            {
+              "text": "{{ message|escapejs }}",
+              "tags": "{{ message.tags|escapejs }}"
+            }{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        ]
+      </script>
+
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          const messagesElement = document.getElementById('django-messages-data');
+          if (messagesElement) {
+            try {
+              // Parse the server-rendered JSON string natively
+              const djangoMessages = JSON.parse(messagesElement.textContent);
+
+              djangoMessages.forEach(function(msg) {
+                let msgType = msg.tags;
+                let messageText = msg.text;
+                let swalIcon = "info"; 
+                let swalTitle = "Notification";
+
+                if (msgType.includes("success")) {
+                    swalIcon = "success";
+                    swalTitle = "Success!";
+                } else if (msgType.includes("error")) {
+                    swalIcon = "error";
+                    swalTitle = "Error Occurred";
+                } else if (msgType.includes("warning")) {
+                    swalIcon = "warning";
+                    swalTitle = "Warning";
+                }
+
+                // Catch custom validation errors
+                if (messageText.includes("User Not Found") || messageText.includes("Client Not Found")) {
+                    swalTitle = "Error";
+                }
+
+                Swal.fire({
+                    title: swalTitle,
+                    text: messageText,
+                    icon: swalIcon,
+                    confirmButtonColor: '#6366f1',
+                    background: 'var(--tf-card-bg, #ffffff)',
+                    color: 'inherit'
+                });
+              });
+            } catch (e) {
+              console.error("Error parsing system messages JSON data payload:", e);
+            }
+          }
+        });
+      </script>
+    {% endif %}
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        const aiForm = document.getElementById('aiTaskForm');
+        const aiSubmitBtn = document.getElementById('aiSubmitBtn');
+        const aiBtnSpinner = document.getElementById('aiBtnSpinner');
+        const aiBtnText = document.getElementById('aiBtnText');
+
+        if (aiForm && aiSubmitBtn) {
+          aiForm.addEventListener('submit', function() {
+            // 1. Disable the button so the user cannot click it again
+            aiSubmitBtn.disabled = true;
+            
+            // 2. Remove the Bootstrap "d-none" class to show the spinner loader
+            aiBtnSpinner.classList.remove('d-none');
+            
+            // 3. Change the action button text
+            aiBtnText.textContent = 'Generating...';
+          });
+        }
+      });
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        const briefForm = document.getElementById('regenerateBriefForm');
+        const briefBtn = document.getElementById('regenerateBriefBtn');
+        const briefSpinner = document.getElementById('briefSpinner');
+        const briefRefreshIcon = document.getElementById('briefRefreshIcon');
+        const briefBtnText = document.getElementById('briefBtnText');
+
+        if (briefForm && briefBtn) {
+          briefForm.addEventListener('submit', function() {
+            briefBtn.disabled = true;
+            if (briefSpinner) briefSpinner.classList.remove('d-none');
+            if (briefRefreshIcon) briefRefreshIcon.classList.add('d-none');
+            if (briefBtnText) briefBtnText.textContent = 'Analyzing...';
+          });
+        }
+      });
+    </script>
+
+  {% block extra_js %}{% endblock %}
+
+</body>
+</html>

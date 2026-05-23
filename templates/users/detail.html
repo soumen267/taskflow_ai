@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.name }}{% endblock %}
+{% block page_title %}{{ user.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex gap-2 mb-3">
+  <a href="{% url 'users:list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Back
+  </a>
+  <a href="{% url 'users:update' user.pk %}" class="btn btn-sm tf-btn-primary">
+    <i class="bi bi-pencil me-1"></i>Edit
+  </a>
+</div>
+
+<div class="tf-card" style="max-width:700px;">
+  <div class="tf-card__body">
+    <div class="d-flex gap-2 mb-3 flex-wrap">
+      <span class="tf-badge tf-badge--status-{{ user.status }}">{{ user.get_status_display }}</span>
+      <span class="tf-badge tf-badge--{{ user.priority }}">{{ user.get_priority_display }}</span>
+      {% if user.is_overdue %}<span class="tf-badge tf-badge--danger">Overdue</span>{% endif %}
+    </div>
+
+    {% if user.description %}
+      <p class="text-body-secondary">{{ user.description|linebreaksbr }}</p>
+    {% endif %}
+
+    <hr />
+
+    <dl class="row mb-0">
+      <dt class="col-sm-4">Due date</dt>
+      <dd class="col-sm-8">{{ user.due_date|date:"F j, Y"|default:"Not set" }}</dd>
+
+      <dt class="col-sm-4">Assigned to</dt>
+      <dd class="col-sm-8">{{ user.assigned_to|default:"Unassigned" }}</dd>
+
+      <dt class="col-sm-4">Created</dt>
+      <dd class="col-sm-8">{{ user.created_at|date:"F j, Y" }}</dd>
+    </dl>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Clients{% endblock %}
+{% block page_title %}Clients{% endblock %}
+
+{% block content %}
+<div class="tf-page-header">
+  <h1 class="tf-page-header__title">My Clients</h1>
+  <a href="{% url 'clients:create' %}" class="btn tf-btn-primary">
+    <i class="bi bi-plus-lg me-1"></i> New Client
+  </a>
+</div>
+{% if clients %}
+<div class="tf-card">
+  <div class="tf-card__body p-0">
+      <div class="table-responsive">
+        <table class="table tf-table mb-0 datatable-init">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Company</th>
+              <th>Phone</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th class="text-end" data-sortable="false">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for client in clients %}
+              <tr>
+                <td>
+                  <a href="{% url 'clients:detail' client.pk %}" class="fw-medium text-body">
+                    {{ client.name }}
+                  </a>
+                </td>
+                <td>
+                    {{ client.email }}
+                </td>
+                <td>
+                    {{ client.company }}
+                </td>
+                <td>
+                    {{ client.phone }}
+                </td>
+                <td>
+                    {{ client.description|truncatechars:50 }}
+                </td>
+                <td>
+                  <form action="{% url 'clients:toggle_active' client.pk %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    
+                    {% if client.is_active %}
+                      <button type="submit" class="btn btn-sm p-0 border-0" title="Click to Deactivate">
+                        <span class="badge bg-success-subtle text-success d-inline-flex align-items-center">
+                          <i class="bi bi-check-circle-fill me-1"></i> Active
+                        </span>
+                      </button>
+                    {% else %}
+                      <button type="submit" class="btn btn-sm p-0 border-0" title="Click to Activate">
+                        <span class="badge bg-secondary-subtle text-secondary d-inline-flex align-items-center">
+                          <i class="bi bi-x-circle-fill me-1"></i> Inactive
+                        </span>
+                      </button>
+                    {% endif %}
+                  </form>
+                </td>
+                <td class="text-end">
+                  <a href="{% url 'clients:update' client.pk %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <a href="{% url 'clients:delete' client.pk %}" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash3"></i>
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="tf-empty-state">
+        <i class="bi bi-inbox tf-empty-state__icon"></i>
+        <p>No clients found. <a href="{% url 'clients:create' %}">Add one now.</a></p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

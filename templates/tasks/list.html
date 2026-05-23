@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Tasks{% endblock %}
+{% block page_title %}Tasks{% endblock %}
+
+{% block content %}
+<div class="tf-page-header">
+  <h1 class="tf-page-header__title">My Tasks</h1>
+  <a href="{% url 'tasks:create' %}" class="btn tf-btn-primary">
+    <i class="bi bi-plus-lg me-1"></i> New Task
+  </a>
+</div>
+
+{# Keep your original custom filter button row #}
+<!-- <div class="tf-filters mb-3">
+  <a href="?status=" class="tf-filter-btn {% if not request.GET.status %}active{% endif %}">All</a>
+  <a href="?status=open" class="tf-filter-btn {% if request.GET.status == 'open' %}active{% endif %}">Open</a>
+  <a href="?status=in_progress" class="tf-filter-btn {% if request.GET.status == 'in_progress' %}active{% endif %}">In Progress</a>
+  <a href="?status=done" class="tf-filter-btn {% if request.GET.status == 'done' %}active{% endif %}">Done</a>
+</div> -->
+<!-- 🤖 AI COPILOT DAILY BRIEF CONTAINER -->
+<div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%); border-left: 4px solid #6366f1 !important;">
+  <div class="card-body p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="d-flex align-items-center gap-2">
+        <span class="fs-4">💡</span>
+        <div>
+          <h5 class="card-title fs-6 fw-bold mb-0">AI Workspace Copilot</h5>
+          <small class="text-muted">
+            {% if request.user.is_staff %}Team oversight summary & operations recommendations{% else %}Your daily productivity summary & focus recommendations{% endif %}
+          </small>
+        </div>
+      </div>
+      
+      <form action="{% url 'tasks:regenerate_brief' %}" method="post" id="regenerateBriefForm" class="m-0">
+        {% csrf_token %}
+        <button type="submit" id="regenerateBriefBtn" class="btn btn-sm btn-white border shadow-sm rounded-pill px-3 d-flex align-items-center gap-1.5" style="font-size: 0.8rem; background-color: white;">
+          <span class="spinner-border spinner-border-sm d-none" id="briefSpinner" role="status" aria-hidden="true"></span>
+          <i class="bi bi-arrow-clockwise text-indigo" id="briefRefreshIcon" style="color:#6366f1;"></i> 
+          <span id="briefBtnText">Generate Briefing</span>
+        </button>
+      </form>
+    </div>
+
+    <div class="p-3 bg-white border rounded">
+      {% if request.session.ai_workspace_brief %}
+        <div class="lh-base" style="font-size: 0.925rem;">
+          {{ request.session.ai_workspace_brief|safe }}
+        </div>
+      {% else %}
+        <div class="text-center py-2">
+          <p class="text-muted small mb-2">No active workspace briefing found for your session.</p>
+          <!-- <button type="button" class="btn btn-sm btn-indigo text-white shadow-xs rounded px-3" style="background-color:#6366f1; font-size: 0.8rem;" onclick="document.getElementById('regenerateBriefBtn').click();">
+            <i class="bi bi-cpu me-1"></i> Analyze Team Workspace
+          </button> -->
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{# 🧠 AI Command Search Input Row #}
+<div class="card border-0 shadow-sm mb-4 bg-light">
+  <div class="card-body p-4">
+    <h5 class="card-title fs-6 fw-semibold mb-3">
+      <i class="bi bi-cpu text-indigo me-1" style="color: #6366f1;"></i> AI Task Flow Quick Add
+    </h5>
+    
+    <form method="POST" action="{% url 'tasks:quick_add' %}" id="aiTaskForm">
+      {% csrf_token %}
+      <div class="input-group mb-2 shadow-sm rounded">
+        <span class="input-group-text bg-white border-end-0 text-muted">
+          <i class="bi bi-terminal"></i>
+        </span>
+        <input type="text" 
+              id="aiCommandInput" 
+              name="ai_command" 
+              class="form-control border-start-0 py-2.5 fs-6" 
+              placeholder="Type a task in plain English..." 
+              required>
+        
+        <button type="submit" id="aiSubmitBtn" class="btn btn-indigo text-white px-4 d-flex align-items-center gap-2" style="background-color: #6366f1;">
+          <span class="spinner-border spinner-border-sm d-none" id="aiBtnSpinner" role="status" aria-hidden="true"></span>
+          <span id="aiBtnText">Generate Task</span>
+        </button>
+      </div>
+    </form>
+
+    <div class="d-flex flex-column gap-1.5 mt-3">
+      
+      {% if request.user.is_staff %}
+        <div class="text-muted small mb-1">
+          <span class="badge bg-indigo bg-opacity-10 text-indigo me-1" style="color: #6366f1; background-color: rgba(99, 102, 241, 0.1);">Admin Formula</span>
+          Type: <strong>[What to do] [When it is due] for [Client] <span class="text-danger">assign to [Username]</span></strong>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <span class="text-muted small"><i class="bi bi-arrow-return-right"></i> Click to try:</span>
+          
+          <button type="button" 
+                  class="badge bg-white text-dark border px-2.5 py-1.5 rounded-pill shadow-sm text-start fw-normal" 
+                  style="cursor: pointer; transition: all 0.2s;"
+                  onclick="document.getElementById('aiCommandInput').value = 'Fix database connection issues by Friday afternoon for Client 2 assign to soumen12';">
+            Fix database connection issues by Friday afternoon for Client 2 assign to soumen12
+          </button>
+          
+          <button type="button" 
+                  class="badge bg-white text-dark border px-2.5 py-1.5 rounded-pill shadow-sm text-start fw-normal" 
+                  style="cursor: pointer; transition: all 0.2s;"
+                  onclick="document.getElementById('aiCommandInput').value = 'Review code tomorrow morning for Client 3 assign to soumen12';">
+            Review code tomorrow morning for Client 3 assign to soumen12
+          </button>
+        </div>
+
+      {% else %}
+        <div class="text-muted small mb-1">
+          <span class="badge bg-success bg-opacity-10 text-success me-1" style="color: #198754; background-color: rgba(25, 135, 84, 0.1);">User Formula</span>
+          Type: <strong>[What to do] [When it is due] for [Client]</strong> <span class="text-muted">(Auto-assigned to you)</span>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <span class="text-muted small"><i class="bi bi-arrow-return-right"></i> Click to try:</span>
+          
+          <button type="button" 
+                  class="badge bg-white text-dark border px-2.5 py-1.5 rounded-pill shadow-sm text-start fw-normal" 
+                  style="cursor: pointer; transition: all 0.2s;"
+                  onclick="document.getElementById('aiCommandInput').value = 'Fix database connection issues by Friday afternoon for Client 2';">
+            Fix database connection issues by Friday afternoon for Client 2
+          </button>
+          
+          <button type="button" 
+                  class="badge bg-white text-dark border px-2.5 py-1.5 rounded-pill shadow-sm text-start fw-normal" 
+                  style="cursor: pointer; transition: all 0.2s;"
+                  onclick="document.getElementById('aiCommandInput').value = 'Review code tomorrow morning for Client 3';">
+            Review code tomorrow morning for Client 3
+          </button>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+{% if tasks %}
+<div class="tf-card">
+  <div class="tf-card__body p-0">
+    <div class="table-responsive">
+      <table class="table tf-table mb-0 datatable-init">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Assigned To</th>
+            <th>Client</th>
+            <th>Details</th>
+            <th>Due date</th>
+            <th class="text-end" data-sortable="false">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in tasks %}
+            <tr>
+              <td>
+                <a href="{% url 'tasks:detail' task.pk %}" class="fw-medium text-body">
+                  {{ task.title }}
+                </a>
+              </td>
+              <td>
+                <span class="tf-badge tf-badge--status-{{ task.status }}">
+                  {{ task.get_status_display }}
+                </span>
+              </td>
+              <td>
+                <span class="tf-badge tf-badge--{{ task.priority }}">
+                  {{ task.get_priority_display }}
+                </span>
+              </td>
+              <td>
+                  {{ task.assigned_to.username|default:"Unassigned" }}
+              </td>
+              <td>
+                  {{ task.client.name|default:"No Client" }}
+              </td>
+              <td>
+                  {{ task.description|default:"No description available" }}
+              </td>
+              <td class="{% if task.is_overdue %}text-danger{% endif %}">
+                {{ task.due_date|date:"M j, Y"|default:"—" }}
+              </td>
+              <td class="text-end">
+                <div class="d-inline-flex gap-1 justify-content-end align-items-center">
+                {% if task.status != 'done' %}
+                    <form action="{% url 'tasks:complete' task.pk %}" method="post" class="m-0 p-0">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-outline-success" title="Mark as Complete" style="padding: 0.25rem 0.5rem;">
+                        <i class="bi bi-check2"></i>
+                      </button>
+                    </form>
+                  {% endif %}
+                <a href="{% url 'tasks:update' task.pk %}" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <a href="{% url 'tasks:delete' task.pk %}" class="btn btn-sm btn-outline-danger">
+                  <i class="bi bi-trash3"></i>
+                </a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    </div>
+</div>
+{% else %}
+<div class="tf-card">
+  <div class="tf-card__body">
+    <div class="tf-empty-state">
+      <i class="bi bi-inbox tf-empty-state__icon"></i>
+      <p>No tasks found. <a href="{% url 'tasks:create' %}">Add one now.</a></p>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

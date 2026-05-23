@@ -1,0 +1,112 @@
+{% load static %}
+<nav id="tf-sidebar" class="tf-sidebar" aria-label="Main navigation">
+
+  {# Brand #}
+  <div class="tf-sidebar__brand">
+    <a href="{% url 'core:dashboard' %}" class="tf-sidebar__logo">
+      <span class="tf-sidebar__logo-icon">
+        <i class="bi bi-lightning-charge-fill"></i>
+      </span>
+      <span class="tf-sidebar__logo-text">TaskFlow <em>AI</em></span>
+    </a>
+    {# Mobile close button #}
+    <button
+      class="btn btn-link tf-sidebar__close d-xl-none"
+      id="sidebarClose"
+      aria-label="Close sidebar"
+    >
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  {# Navigation sections #}
+  <div class="tf-sidebar__body">
+
+    <ul class="tf-nav">
+      <li class="tf-nav__label">Main</li>
+
+      <li class="tf-nav__item">
+        <a
+          href="{% url 'core:dashboard' %}"
+          class="tf-nav__link {% if request.resolver_match.namespace == 'core' %}active{% endif %}"
+        >
+          <i class="bi bi-speedometer2"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+
+      <li class="tf-nav__item">
+        <a
+          href="{% url 'tasks:list' %}"
+          class="tf-nav__link {% if request.resolver_match.namespace == 'tasks' %}active{% endif %}"
+        >
+          <i class="bi bi-check2-square"></i>
+          <span>Tasks</span>
+          {% if open_task_count %}
+            <span class="tf-nav__badge">{{ open_task_count }}</span>
+          {% endif %}
+        </a>
+      </li>
+      {% if request.user.is_staff or request.user.is_superuser %}
+      <li class="tf-nav__item">
+        <a
+          href="{% url 'clients:list' %}"
+          class="tf-nav__link {% if request.resolver_match.namespace == 'clients' %}active{% endif %}"
+        >
+          <i class="bi bi-check2-square"></i>
+          <span>Clients</span>
+          {% if open_client_count %}
+            <span class="tf-nav__badge">{{ open_client_count }}</span>
+          {% endif %}
+        </a>
+      </li>
+      <li class="tf-nav__item">
+        <a
+          href="{% url 'users:list' %}"
+          class="tf-nav__link {% if request.resolver_match.namespace == 'users' %}active{% endif %}"
+        >
+          <i class="bi bi-check2-square"></i>
+          <span>Users</span>
+          {% if open_user_count %}
+            <span class="tf-nav__badge">{{ open_user_count }}</span>
+          {% endif %}
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+
+    <ul class="tf-nav mt-auto">
+      <li class="tf-nav__label">Account</li>
+
+      <li class="tf-nav__item">
+        <a
+          href="{% url 'accounts:profile' %}"
+          class="tf-nav__link {% if request.resolver_match.namespace == 'accounts' and request.resolver_match.url_name == 'profile' %}active{% endif %}"
+        >
+          <i class="bi bi-person-circle"></i>
+          <span>Profile</span>
+        </a>
+      </li>
+
+      <li class="tf-nav__item">
+        <form method="post" action="{% url 'accounts:logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="tf-nav__link tf-nav__link--btn w-100">
+            <i class="bi bi-box-arrow-left"></i>
+            <span>Log out</span>
+          </button>
+        </form>
+      </li>
+    </ul>
+
+  </div>{# /.tf-sidebar__body #}
+
+  {# Sidebar footer: app version #}
+  <div class="tf-sidebar__footer">
+    <span class="tf-sidebar__version">v{{ SITE_VERSION }}</span>
+  </div>
+
+</nav>
+
+{# Overlay for mobile #}
+<div class="tf-sidebar-overlay" id="sidebarOverlay"></div>

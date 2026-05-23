@@ -1,0 +1,23 @@
+# Web Framework & Server
+Django==6.0.5
+whitenoise==6.12.0
+python-decouple==3.8
+
+# AI Engines
+ollama==0.6.2
+google-genai==2.6.0
+
+# Database & Infrastructure
+psycopg2-binary==2.9.12
+
+# UI Components & Styling
+django-crispy-forms==2.6
+crispy-bootstrap5==2024.2
+
+# Date Processing Utilities
+dateparser==1.4.0
+
+# Development & Debugging Tools
+django-debug-toolbar==4.4.2
+factory-boy==3.3.0
+Faker==40.18.0
