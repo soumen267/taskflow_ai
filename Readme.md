@@ -108,3 +108,12 @@ python manage.py runserver
 - Templates are located in `templates/` and app-specific subfolders.
 - Static files are served from `static/` in development and `staticfiles/` after `collectstatic`.
 - Uploaded media is stored in `media/`.
+
+## 🤖 Local AI Core Setup (Ollama)
+
+This project utilizes a local AI service layer for natural language task processing and workspace diagnostics.
+
+1. Download and install **Ollama** on your machine from [ollama.com](https://ollama.com).
+2. Pull the optimized coder model from your terminal before interacting with the system views:
+   ```bash
+   ollama pull qwen2.5-coder:3b
