@@ -1,6 +1,13 @@
 # Taskflow AI
 
-Taskflow AI is a Django project for managing tasks, clients, users, and core business operations.
+## 🚀 Core AI Features
+
+TaskFlow AI stands out by integrating an entirely offline, local AI intelligence layer leveraging **Ollama (`qwen2.5-coder:3b`)**, eliminating cloud API dependencies:
+
+- **🤖 AI Task Flow Quick Add:** Parses unstructured, conversational English sentences (e.g., *"Fix database connection issues by Friday afternoon for Client 2 assign to soumen12"*) and automatically validates, maps, and creates structured database records.
+- **💡 AI Workspace Copilot:** A role-aware dashboard diagnostic engine:
+  - *For Team Members:* Generates personalized morning focus briefings, critical priorities, and overdue target highlights.
+  - *For Administrators:* Shifts into an executive operations dashboard manager, auto-aggregating across all team members to pinpoint productivity bottlenecks and workflow risks.
 
 ## Project Structure
 
@@ -117,3 +124,17 @@ This project utilizes a local AI service layer for natural language task process
 2. Pull the optimized coder model from your terminal before interacting with the system views:
    ```bash
    ollama pull qwen2.5-coder:3b
+
+## 🌐 Production Deployment Notes
+
+When transitioning from local development to a live production server, ensure the following configurations are updated:
+
+### 1. Environment Adjustments (`.env`)
+- Change `DEBUG=False` in your production environment variables to turn off error tracebacks and disable the Django Debug Toolbar (`DjDT`).
+- Generate a unique, secure `SECRET_KEY` specifically for production.
+- Update `ALLOWED_HOSTS` to include your live domain name (e.g., `ALLOWED_HOSTS=your-app.com,your-subdomain.onrender.com`).
+
+### 2. Static Files (`WhiteNoise`)
+This project uses **WhiteNoise** to serve static assets. Before running the production server, compile and collect all your CSS, JavaScript, and asset layers into the main deployment directory:
+```bash
+python manage.py collectstatic --noinput
