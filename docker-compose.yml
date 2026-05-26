@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # 🐘 PostgreSQL Database Service
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=taskflow_ai
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=your-secure-password
+    ports:
+      - "5432:5432"
+
+  # 🚀 Django Web Application Service
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.local
+      - SECRET_KEY=docker-local-dev-secret-key-12345
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      - DB_NAME=taskflow_ai
+      - DB_USER=postgres
+      - DB_PASSWORD=your-secure-password
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

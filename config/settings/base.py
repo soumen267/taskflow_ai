@@ -6,6 +6,8 @@ All environment-specific settings inherit from here.
 from pathlib import Path
 from decouple import config, Csv
 
+GEMINI_API_KEY = config('GEMINI_API_KEY', default=None)
+
 # ─────────────────────────────────────────────
 # Paths
 # ─────────────────────────────────────────────

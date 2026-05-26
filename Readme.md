@@ -138,3 +138,16 @@ When transitioning from local development to a live production server, ensure th
 This project uses **WhiteNoise** to serve static assets. Before running the production server, compile and collect all your CSS, JavaScript, and asset layers into the main deployment directory:
 ```bash
 python manage.py collectstatic --noinput
+
+### 🐳 Running with Docker
+
+If you prefer to use Docker instead of setting up Python and PostgreSQL manually on your host machine:
+
+1. Ensure **Docker Desktop** is installed and running on your system.
+2. Build and launch the container ecosystem:
+   ```bash
+   docker-compose up --build
+3. Run migrations inside the active web container to build your tables:
+    docker-compose exec web python manage.py migrate
+4. Create your admin/superuser account:
+    docker-compose exec web python manage.py createsuperuser

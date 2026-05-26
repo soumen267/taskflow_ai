@@ -2,83 +2,111 @@ import json
 import ollama
 import datetime
 from django.utils import timezone
+from google import genai
+from google.genai import types
+from django.conf import settings
+
+# 🎛️ GLOBAL AI ENGINE CONFIGURATION
+AI_ENGINE_SELECTION = 1  # 1 = Ollama (Local), 2 = Gemini (Cloud)
+
+def get_gemini_client():
+    """Initializes the official Google GenAI client securely using your environment configurations."""
+    api_key = getattr(settings, 'GEMINI_API_KEY', None)
+    return genai.Client(api_key=api_key)
+
+def call_ai_engine(system_instruction, prompt_text, temperature=0.0, require_json=False):
+    """
+    GLOBAL HELPER FUNCTION: Channels prompts to either Ollama or Gemini 
+    based on the AI_ENGINE_SELECTION switch, handles errors, and cleans output text.
+    """
+    engine_name = "OLLAMA LOCAL" if AI_ENGINE_SELECTION == 1 else "GEMINI CLOUD"
+    
+    try:
+        if AI_ENGINE_SELECTION == 1:
+            # 1️⃣ OLLAMA SPECIFIC CORES
+            response = ollama.generate(
+                model='qwen2.5-coder:3b',
+                system=system_instruction,
+                prompt=prompt_text,
+                options={"temperature": temperature}
+            )
+            raw_output = response['response']
+        else:
+            # 2️⃣ GEMINI SPECIFIC CORES
+            client = get_gemini_client()
+            
+            # Setup configuration arguments dynamically
+            config_args = {
+                "system_instruction": system_instruction,
+                "temperature": temperature
+            }
+            if require_json:
+                config_args["response_mime_type"] = "application/json"
+                
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt_text,
+                config=types.GenerateContentConfig(**config_args),
+            )
+            raw_output = response.text
+
+        # Standard Clean-up Operations for both engines
+        clean_output = raw_output.strip().replace("```json", "").replace("```html", "").replace("```", "")
+        return clean_output
+
+    except Exception as e:
+        print(f"❌ [GLOBAL AI ENGINE ERROR] Platform: {engine_name} | Exception: {e}")
+        return None
+
+# =====================================================================
+# 🛠️ YOUR REORGANIZED COMPONENT FUNCTIONS (NOW MUCH SMALLER & CLEANER)
+# =====================================================================
 
 def parse_task_with_ollama(prompt_text):
-    """
-    Sends unstructured user input to a local Ollama model 
-    and extracts a clean, structured JSON object for Django.
-    """
+    """Parses unstructured conversational sentences into structured JSON data rows."""
     today_str = timezone.now().date().strftime("%Y-%m-%d")
 
     system_instruction = (
         "You are a strict backend data parser for a task management system. "
         "Your job is to parse unstructured sentences into a structured JSON object.\n\n"
         f"CRITICAL CONTEXT: Today's date is strictly {today_str}. "
-        "Use this reference date to calculate any relative time expressions mentioned (e.g., 'tomorrow', 'next monday', 'by friday').\n\n"
-        "The JSON object MUST contain exactly these keys with no extra text or markdown wrappers:\n"
-        "{\n"
-        '  "title": "string containing the core task action",\n'
-        '  "priority": "low", "medium", or "high" (default to "medium" if unspecified),\n'
-        '  "assigned_to": "username string if mentioned, otherwise null",\n'
-        '  "client": "client name string if mentioned, otherwise null",\n'
-        '  "due_date": "Calculate and output ONLY as an absolute date string in YYYY-MM-DD format based on the reference date. If no date or time is mentioned, output null."\n'
-        "}\n"
+        "Use this reference date to calculate any relative time expressions mentioned (e.g., 'tomorrow').\n\n"
+        "The JSON object MUST contain exactly these keys: 'title', 'priority', 'assigned_to', 'client', 'due_date'.\n"
         "Do not explain anything. Output ONLY the raw JSON string."
     )
-    print("\n" + "="*60)
-    print(f"🤖 [AI START] Processing command: '{prompt_text}'")
-    print("="*60)
-    try:
-        response = ollama.generate(
-            model='qwen2.5-coder:3b',
-            system=system_instruction,
-            prompt=f"Parse this task sentence: '{prompt_text}'",
-            options={"temperature": 0.0} # Zero temperature locks down predictable accuracy
-        )
-        raw_output = response['response']
-        print("📥 [OLLAMA RAW OUTPUT]:")
-        print(raw_output)
-        print("-"*60)
-        # Clean potential markdown string wrappers from the LLM output
-        clean_json_str = response['response'].strip().replace("```json", "").replace("```", "")
-        parsed_data = json.loads(clean_json_str)
-        print(f"✅ [AI SUCCESS] Structured Data: {parsed_data}")
-        print("="*60 + "\n")
-        return parsed_data
-    except Exception as e:
-        print(f"AI Parsing Error: {e}")
-        print(f"❌ [AI ERROR] Exception encountered: {e}")
-        print("="*60 + "\n")
+
+    # Use the global helper
+    raw_json_str = call_ai_engine(
+        system_instruction=system_instruction,
+        prompt_text=f"Parse this task sentence: '{prompt_text}'",
+        temperature=0.0,
+        require_json=True
+    )
+
+    if not raw_json_str:
         return None
+
+    try:
+        return json.loads(raw_json_str)
+    except Exception as e:
+        print(f"❌ JSON Parsing Error: {e}")
+        return None
+
     
 def generate_workspace_brief(user_name, tasks_list, is_admin=False):
-    """
-    Takes a structured list of pending tasks for a user and runs it through 
-    Ollama to generate a highly focused, motivating, and clear HTML-formatted morning briefing.
-    """
+    """Generates an HTML workspace focus brief optimized based on the user's workflow role."""
     if not tasks_list:
-        return (
-            "<p class='text-muted mb-0'>"
-            "🎉 <strong>All clean!</strong> You have no pending tasks on your plate right now."
-            "</p>"
-        )
+        return "<p class='text-muted mb-0'>🎉 <strong>All clean!</strong> You have no pending tasks.</p>"
     
-    # 1. 🕒 DYNAMIC TIME-OF-DAY GREETING
     current_hour = datetime.datetime.now().hour
-    if current_hour < 12:
-        greeting = "Good morning"
-    elif current_hour < 17:
-        greeting = "Good afternoon"
-    else:
-        greeting = "Good evening"
+    greeting = "Good morning" if current_hour < 12 else "Good afternoon" if current_hour < 17 else "Good evening"
 
-    # Format the task data cleanly for the LLM context
+    # Format the data rows
     formatted_tasks = []
     for t in tasks_list:
         client_name = t.client.name if t.client else "Internal"
         due = t.due_date.strftime('%Y-%m-%d') if t.due_date else "No deadline"
         assignee = t.assigned_to.username if t.assigned_to else "Unassigned"
-        
         if is_admin:
             formatted_tasks.append(f"- [{t.priority.upper()}] '{t.title}' for {client_name} (Assigned to: {assignee}, Due: {due})")
         else:
@@ -86,43 +114,30 @@ def generate_workspace_brief(user_name, tasks_list, is_admin=False):
             
     tasks_context = "\n".join(formatted_tasks)
 
-    if is_admin:
-        role_instruction = (
-            "You are an elite Operations Director AI. Your job is to look at ALL pending company tasks "
-            "and give the Administrator a high-level operational oversight summary.\n"
-            "Highlight which team members have high-priority bottlenecks and flag any overdue targets."
-        )
-    else:
-        role_instruction = (
-            "You are an elite productivity executive assistant. Your job is to look at a user's personal "
-            "pending tasks and give them a highly motivating personal workspace focus plan."
-        )
+    role_instruction = (
+        "You are an elite Operations Director AI giving the Administrator high-level operational oversight summaries."
+        if is_admin else
+        "You are an elite productivity executive assistant giving the user a highly motivating personal workspace focus plan."
+    )
 
     system_instruction = (
-        "You are an elite productivity executive assistant. Your job is to read a user's pending "
-        "tasks list and generate a brief, highly motivating, structured workspace summary.\n\n"
+        f"{role_instruction}\n\n"
         "FORMATTING RULES:\n"
         "1. Strict HTML Only: Do NOT use markdown. Write pure HTML tags directly.\n"
         f"2. Start your response directly with: '<p>{greeting}, {user_name}!</p>'\n"
-        "3. Structure your response using exactly two distinct <p> blocks or an <ul> list:\n"
-        "   - Paragraph 1: High-priority tasks and urgent bottlenecks.\n"
-        "   - Paragraph 2: Overdue alerts (like Task 2) and general recommendations.\n"
+        "3. Structure your response using exactly two distinct <p> blocks or an <ul> list.\n"
         "4. Keep your output highly precise, professional, and under 120 words.\n"
-        "5. Do not wrap code inside markdown blocks like ```html.\n"
     )
 
-    prompt = (
-        f"Generate a workspace focus brief based on these active data rows:\n{tasks_context}"
+    # Use the global helper
+    brief_html = call_ai_engine(
+        system_instruction=system_instruction,
+        prompt_text=f"Generate a workspace focus brief based on these active data rows:\n{tasks_context}",
+        temperature=0.2,
+        require_json=False
     )
 
-    try:
-        response = ollama.generate(
-            model='qwen2.5-coder:3b',  # Your fastest and most efficient local model
-            system=system_instruction,
-            prompt=prompt,
-            options={"temperature": 0.2}  # Balanced between structure and creativity
-        )
-        return response['response'].strip().replace("```html", "").replace("```", "")
-    except Exception as e:
-        print(f"❌ [COPILOT ERROR]: {e}")
+    if not brief_html:
         return "<p class='text-muted'>My circuits are temporarily offline. Have a productive day!</p>"
+
+    return brief_html
